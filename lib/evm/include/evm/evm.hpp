@@ -1,14 +1,14 @@
 #pragma once
 
 #include "macro_definition.hpp"
-#include "type.hpp"
 
-namespace templatelib {
+namespace evm {
+
     /**
      * Generates a type.
      *
      * @param value The value to take.
      *
      */
-    EXPORT_TEMPLATE_LIB Type type(int value);
+    EXPORT_EVM int type(int value);
 }

@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-namespace templatelib::test {
+namespace evm::test {
     class Environment : public ::testing::Environment {
     public:
         ~Environment() override;
