@@ -1,0 +1,33 @@
+target_sources(${PROJECT_NAME}
+        PUBLIC
+        ../../include/evm/evm/amplifier.hpp
+        ../../include/evm/evm/evm.hpp
+        ../../include/evm/evm/ideal_bandpass_temporal_filter.hpp
+        ../../include/evm/evm/laplace_pyramid.hpp
+        ../../include/evm/evm/laplace_spatial_filter.hpp
+        ../../include/evm/evm/level_reconstructor.hpp
+        ../../include/evm/evm/pyramid.hpp
+        ../../include/evm/evm/gaussian_pyramid.hpp
+        ../../include/evm/evm/gaussian_spatial_filter.hpp
+        ../../include/evm/evm/reconstructor.hpp
+        ../../include/evm/evm/spatial_filter.hpp
+        ../../include/evm/evm/temporal_filter.hpp
+        ../../include/evm/evm/subscription.hpp
+        ../../include/evm/evm/subscriber.hpp
+        ../../include/evm/evm/display_subscriber.hpp
+        ../../include/evm/evm/video_subscriber.hpp
+
+        PRIVATE
+        amplifier.cpp
+        evm.cpp
+        ideal_bandpass_temporal_filter.cpp
+        laplace_pyramid.cpp
+        laplace_spatial_filter.cpp
+        level_reconstructor.cpp
+        pyramid.cpp
+        gaussian_pyramid.cpp
+        gaussian_spatial_filter.cpp
+        reconstructor.cpp
+        subscription.cpp
+        display_subscriber.cpp
+        video_subscriber.cpp)

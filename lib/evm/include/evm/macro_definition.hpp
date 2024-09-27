@@ -1,4 +1,5 @@
 #pragma once
+
 #if defined(_MSC_VER)
 // Windows
     #if defined(EVM_IMPORT)
