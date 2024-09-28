@@ -38,10 +38,10 @@ TEST(Pipeline, should_magnify_color_video) {
         << std::make_shared<evm::DefaultStabilizer>() // TODO: Rename "NoStabilizer"
         << std::make_shared<evm::GaussianSpatialFilter>(5)
         << std::make_shared<evm::IdealBandpassTemporalFilter>(0.833, 1, 0)
-        << std::make_shared<evm::Amplifier>(std::vector<float>{100})
+        << std::make_shared<evm::Amplifier>(std::vector<float>{2000})
         << std::make_shared<evm::LevelReconstructor>(0)
-        // << std::make_shared<evm::DisplaySubscriber>();
-        << std::make_shared<evm::VideoSubscriber>("resources/mit_dude_result.mp4", 30);
+        << std::make_shared<evm::DisplaySubscriber>();
+        //<< std::make_shared<evm::VideoSubscriber>("resources/mit_dude_result.mp4", 30);
     auto pipeline = builder.build();
 
     // Act

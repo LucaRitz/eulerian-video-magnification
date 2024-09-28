@@ -17,8 +17,6 @@ evm::EVMPipeline::EVMPipeline(std::shared_ptr<WorkingSet<evm::Captured>> capture
 
 }
 
-#include <iostream> // TODO: Delete
-
 void evm::EVMPipeline::execute(std::shared_ptr<WorkingSet<evm::Reconstructed>> data, std::atomic<bool>& running) {
 
     while(running) {
@@ -60,6 +58,9 @@ void evm::EVMPipeline::amplifyAndResolveFrames(std::shared_ptr<WorkingSet<evm::R
         for (int i = 0; i < frames; i++) {
             auto& original = _originals.at(i);
             auto reconstructed = (*_reconstructor)(original._stabilized, original._selected._position, amplified.at(i));
+
+            reconstructed._fft = temporalFiltered._fft;
+            reconstructed._frequencies = temporalFiltered._frequencies;
 
             _colorConverter->toResulting(reconstructed._amplified);
             _colorConverter->toResulting(reconstructed._original);

@@ -6,12 +6,18 @@
 
 #include <vector>
 
+namespace cv {
+    class Mat;
+}
+
 namespace evm {
 
     class PipelineBuilder;
 
     struct EXPORT_EVM TemporalFiltered {
         std::vector<std::shared_ptr<evm::Pyramid>> _temporalFiltered;
+        std::vector<cv::Mat> _fft;
+        std::vector<std::vector<float>> _frequencies;
     };
 
     class EXPORT_EVM TemporalFilter {

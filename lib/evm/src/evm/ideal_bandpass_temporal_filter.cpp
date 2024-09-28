@@ -56,8 +56,11 @@ evm::TemporalFiltered evm::IdealBandpassTemporalFilter::remaining(uint16_t fps) 
 evm::TemporalFiltered evm::IdealBandpassTemporalFilter::filter(uint32_t toProcess, uint16_t fps) {
 
     std::vector<std::shared_ptr<evm::Pyramid>> results;
+    std::vector<cv::Mat> ffts;
+    std::vector<std::vector<float>> frequencies;
     for(uint32_t i = 0; i < toProcess; i++) {
         results.push_back(_spatialFiltered.at(i)._spatialFiltered);
+        frequencies.push_back(std::vector<float>{});
     }
 
     auto& spatialFiltered = _spatialFiltered.at(0);
@@ -78,6 +81,7 @@ evm::TemporalFiltered evm::IdealBandpassTemporalFilter::filter(uint32_t toProces
 
         if (!results.empty()) {
             auto* channelsToFilter = new cv::Mat[filterMat.channels()];
+            auto* fftChannels = new cv::Mat[filterMat.channels()];
             cv::split(filterMat, channelsToFilter);
 
             for (uint8_t i = 0; i < filterMat.channels(); i++) {
@@ -92,23 +96,54 @@ evm::TemporalFiltered evm::IdealBandpassTemporalFilter::filter(uint32_t toProces
                                    0, width - channelToFilter.cols,
                                    cv::BORDER_CONSTANT, cv::Scalar::all(0));
 
-                cv::dft(tempImg, tempImg, cv::DFT_ROWS | cv::DFT_SCALE);
+                cv::dft(tempImg, fftChannels[i], cv::DFT_ROWS | cv::DFT_SCALE);
+                auto& fftChannel = fftChannels[i];
 
-                cv::Mat filter = tempImg.clone();
+                cv::Mat filter = fftChannel.clone();
                 buildFilterOfFrequencyBand(filter, _lowerFreq, _upperFreq, fps);
 
-                cv::mulSpectrums(tempImg, filter, tempImg, cv::DFT_ROWS);
+                cv::mulSpectrums(fftChannel, filter, fftChannel, cv::DFT_ROWS);
 
-                cv::idft(tempImg, tempImg, cv::DFT_ROWS | cv::DFT_SCALE);
+                cv::idft(fftChannel, tempImg, cv::DFT_ROWS | cv::DFT_SCALE);
 
                 tempImg(cv::Rect(0, 0, channelToFilter.cols, channelToFilter.rows)).copyTo(channelsToFilter[i]);
+            }
+
+            std::vector<float> frequency;
+            if (toProcess % 2 == 0) { // TODO: Check
+                for (uint32_t i = 0; i <= toProcess / 2; i++) {
+                    frequency.push_back((((float) i) / toProcess) * fps);
+                }
+                for (uint32_t i = toProcess / 2; i > 0; i--) {
+                    frequency.push_back(-(((float) i) / toProcess) * fps);
+                }
+
+            } else {
+                for (uint32_t i = 0; i <= (toProcess-1) / 2; i++) {
+                    frequency.push_back(((float) i) / toProcess * fps);
+                }
+                for (uint32_t i = (toProcess-1) / 2; i > 0; i--) {
+                    frequency.push_back(-((float) i) / toProcess * fps);
+                }
             }
 
             cv::Mat res;
             cv::merge(channelsToFilter, filterMat.channels(), res);
             delete[] channelsToFilter;
 
-            cv::normalize(res, res, 0, 1, cv::NORM_MINMAX);
+            cv::Mat fft;
+            cv::merge(fftChannels, filterMat.channels(), fft);
+            delete[] fftChannels;
+
+            for (uint32_t i = 0; i < toProcess; i++) {
+                ffts.push_back(fft);
+            }
+
+            if (frequencies[level].empty()) {
+                frequencies[level] = frequency;
+            }
+
+            //cv::normalize(res, res, 0, 1, cv::NORM_MINMAX); // TODO: Why?
             insert(res, originalHeight, results);
 
             _filterMat[level] = filterMat.colRange(results.size(), filterMat.cols);
@@ -120,7 +155,7 @@ evm::TemporalFiltered evm::IdealBandpassTemporalFilter::filter(uint32_t toProces
         _bufferSize -= results.size();
     }
 
-    return TemporalFiltered{results};
+    return TemporalFiltered{results, ffts, frequencies};
 }
 
 uint32_t evm::IdealBandpassTemporalFilter::bufferSize(uint16_t fps) {

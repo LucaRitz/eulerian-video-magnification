@@ -9,7 +9,8 @@ evm::SourceFrame::SourceFrame(cv::Mat frame, uint16_t fps) :
 
 evm::VideoSource::VideoSource(const std::string& file) :
     _videoCapture(file),
-    _totalFrames(static_cast<uint64_t>(_videoCapture.get(cv::CAP_PROP_FRAME_COUNT))) {
+    _totalFrames(static_cast<uint64_t>(_videoCapture.get(cv::CAP_PROP_FRAME_COUNT))),
+    _framesRead(0) {
 }
 
 evm::VideoSource::~VideoSource() {
